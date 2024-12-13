@@ -4,7 +4,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Main
@@ -13,7 +12,6 @@ public class Main
         try {
             encoded_string = URLEncoder.encode(encoded_string,"UTF-8");
             encoded_string = "https://ru.wikipedia.org/w/api.php?action=query&list=search&utf8=&format=json&srsearch=" + encoded_string;
-            //System.out.println(encoded_string);
             return(encoded_string);
         } catch (Exception error) {
             System.out.println("Error" + error.toString());
@@ -40,16 +38,12 @@ public class Main
 
     static void formating_question(String search_question, Scanner scanner) {
         search_question = url_encoder(search_question);
-        //InputStream input_stream = null;
-        //FileOutputStream output_stream_in_file = null;//Убрать попробовать
         String complete_responce_of_wiki_API = null;
         try {
             URL url = new URL(search_question);
             HttpURLConnection http_url_connection = (HttpURLConnection) url.openConnection();
             int responce_for_check = http_url_connection.getResponseCode();
-            //System.out.println(responce);
             if (responce_for_check == HttpURLConnection.HTTP_OK) {
-                //input_stream = http_url_connection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(http_url_connection.getInputStream()));
                 String buffer;
                 StringBuilder response_of_wiki_buffer = new StringBuilder();
@@ -58,7 +52,6 @@ public class Main
                 }
                 complete_responce_of_wiki_API = response_of_wiki_buffer.toString();
                 reader.close();
-                //System.out.println(response_of_wiki_API.toString());
             }
         } catch (Exception error) {
             System.out.println("Error" + error.toString());
@@ -71,7 +64,6 @@ public class Main
             System.out.println("Ничего не найдено");
             return;
         }
-        //System.out.println(complete_responce_to_read.query.search.size());
         for (int i = 0; i < complete_responce_to_read.query.search.size(); i++) {
             System.out.printf("%d - %s\n", i, complete_responce_to_read.query.search.get(i).title);
         }
@@ -84,8 +76,6 @@ public class Main
         Scanner scanner = new Scanner(System.in);
         System.out.print("Введите запрос: ");
         String request_search = scanner.nextLine();
-        //System.out.print(scanner);
-        //System.out.print(request_search);
         if (request_search.isEmpty()) {
             System.out.println("Вы ввели пустой запрос!!!");
             return;
