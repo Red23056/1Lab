@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 public class Main
 {
@@ -22,7 +21,7 @@ public class Main
         }
     }
 
-    static String formating_question(String search_question, Scanner scanner){
+    static void formating_question(String search_question, Scanner scanner){
         search_question = url_encoder(search_question);
         InputStream input_stream = null;
         FileOutputStream output_stream_in_file = null;
@@ -51,8 +50,13 @@ public class Main
                 System.out.println("Error" + error);
             }
         }
-
-        return
+        Parser parser = new Parser();
+        json_to_java end = parser.parse();
+        System.out.println("Результаты поиска:");
+        if (end.query.search.isEmpty()){
+            System.out.println("Ничего не найдено");
+            return;
+        }
     }
 
     public static void main(String[] args) {
