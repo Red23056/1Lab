@@ -13,60 +13,81 @@ public class Main
         try {
             encoded_string = URLEncoder.encode(encoded_string,"UTF-8");
             encoded_string = "https://ru.wikipedia.org/w/api.php?action=query&list=search&utf8=&format=json&srsearch=" + encoded_string;
-            System.out.println(encoded_string);
+            //System.out.println(encoded_string);
             return(encoded_string);
         } catch (Exception error) {
             System.out.println("Error" + error.toString());
-            return " ";
+            return "";
         }
     }
 
-    static void formating_question(String search_question, Scanner scanner){
-        search_question = url_encoder(search_question);
-        InputStream input_stream = null;
-        FileOutputStream output_stream_in_file = null;
-        try{
-            URL url = new URL(search_question);
-            HttpURLConnection http_url_connection = (HttpURLConnection)url.openConnection();
-            int responce = http_url_connection.getResponseCode();
-            if (responce == HttpURLConnection.HTTP_OK){
-                input_stream = http_url_connection.getInputStream();
-                File file = new File("file.json");
-                output_stream_in_file = new FileOutputStream(file);
-                int byteRead = -1;
-                byte[] buffer = new byte[2048];
-                while((byteRead = input_stream.read(buffer)) != -1) {
-                    output_stream_in_file.write(buffer, 0, byteRead);
+    static void open_browser(int command, json_to_java complete_responce_to_read) {
+        boolean wrong_page = true;
+        while (wrong_page){
+            if ((command < complete_responce_to_read.query.search.size()) && (command >= 0)) {
+                try {
+                    URI page = new URI("https://ru.wikipedia.org/w/index.php?curid=" + complete_responce_to_read.query.search.get(command).pageid);
+                    java.awt.Desktop.getDesktop().browse(page);
+                    wrong_page = false;
+                } catch (Exception e) {
+                    System.out.println("ERROR " + e.toString());
                 }
+            } else {
+                System.out.println("Некорректный номер страницы!!!");
             }
-        } catch(Exception error){
-            System.out.println("Error" + error.toString());
         }
-        finally {
-            try {
-                input_stream.close();
-                output_stream_in_file.close();
-            } catch (Exception error){
-                System.out.println("Error" + error);
+    }
+
+    static void formating_question(String search_question, Scanner scanner) {
+        search_question = url_encoder(search_question);
+        //InputStream input_stream = null;
+        //FileOutputStream output_stream_in_file = null;//Убрать попробовать
+        String complete_responce_of_wiki_API = null;
+        try {
+            URL url = new URL(search_question);
+            HttpURLConnection http_url_connection = (HttpURLConnection) url.openConnection();
+            int responce_for_check = http_url_connection.getResponseCode();
+            //System.out.println(responce);
+            if (responce_for_check == HttpURLConnection.HTTP_OK) {
+                //input_stream = http_url_connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(http_url_connection.getInputStream()));
+                String buffer;
+                StringBuilder response_of_wiki_buffer = new StringBuilder();
+                while ((buffer = reader.readLine()) != null) {
+                    response_of_wiki_buffer.append(buffer);
+                }
+                complete_responce_of_wiki_API = response_of_wiki_buffer.toString();
+                reader.close();
+                //System.out.println(response_of_wiki_API.toString());
             }
+        } catch (Exception error) {
+            System.out.println("Error" + error.toString());
+            return;
         }
         Parser parser = new Parser();
-        json_to_java end = parser.parse();
+        json_to_java complete_responce_to_read = parser.parse(complete_responce_of_wiki_API);
         System.out.println("Результаты поиска:");
-        if (end.query.search.isEmpty()){
+        if (complete_responce_to_read.query.search.isEmpty()) {
             System.out.println("Ничего не найдено");
             return;
         }
+        //System.out.println(complete_responce_to_read.query.search.size());
+        for (int i = 0; i < complete_responce_to_read.query.search.size(); i++) {
+            System.out.printf("%d - %s\n", i, complete_responce_to_read.query.search.get(i).title);
+        }
+        System.out.print("Выберите страницу: ");
+        int command = scanner.nextInt();
+        open_browser(command, complete_responce_to_read);
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Введите запрос: ");
         String request_search = scanner.nextLine();
-        System.out.print(scanner);
-        System.out.print(request_search);
+        //System.out.print(scanner);
+        //System.out.print(request_search);
         if (request_search.isEmpty()) {
-            System.out.println("Ошибка, вы ввели пустой запрос!!!");
+            System.out.println("Вы ввели пустой запрос!!!");
             return;
         }
         formating_question(request_search, scanner);
