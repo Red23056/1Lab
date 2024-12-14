@@ -19,8 +19,13 @@ public class Main
         }
     }
 
-    static void open_browser(int command, json_to_java complete_responce_to_read) {
+    static void open_browser(json_to_java complete_responce_to_read, Scanner scanner) {
         boolean wrong_page = true;
+        System.out.println("Некорректный номер страницы!!!");
+        for (int i = 0; i < complete_responce_to_read.query.search.size(); i++) {
+            System.out.printf("%d - %s\n", i, complete_responce_to_read.query.search.get(i).title);
+        }
+        int command = scanner.nextInt();
         while (wrong_page){
             if ((command < complete_responce_to_read.query.search.size()) && (command >= 0)) {
                 try {
@@ -32,6 +37,11 @@ public class Main
                 }
             } else {
                 System.out.println("Некорректный номер страницы!!!");
+                for (int i = 0; i < complete_responce_to_read.query.search.size(); i++) {
+                    System.out.printf("%d - %s\n", i, complete_responce_to_read.query.search.get(i).title);
+                }
+                System.out.print("Выберите страницу: ");
+                command = scanner.nextInt();
             }
         }
     }
@@ -64,12 +74,7 @@ public class Main
             System.out.println("Ничего не найдено");
             return;
         }
-        for (int i = 0; i < complete_responce_to_read.query.search.size(); i++) {
-            System.out.printf("%d - %s\n", i, complete_responce_to_read.query.search.get(i).title);
-        }
-        System.out.print("Выберите страницу: ");
-        int command = scanner.nextInt();
-        open_browser(command, complete_responce_to_read);
+        open_browser(complete_responce_to_read, scanner);
     }
 
     public static void main(String[] args) {
